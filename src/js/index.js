@@ -1,4 +1,4 @@
-import '../css/styles.css'
+import '../css/styles.css';
 // SimpleLightbox
 // import SimpleLightbox from 'simplelightbox';
 // import 'simplelightbox/dist/simple-lightbox.min.css';
