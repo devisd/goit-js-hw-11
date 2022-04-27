@@ -1,7 +1,15 @@
+const URL = 'https://pixabay.com/api/';
+const KEY = '27011698-625c436f56f84acec03c07eda';
 
+function fetchImages(searchName) {
+    return fetch(`${URL}?key=${KEY}&q=${searchName}&image_type=photo&orientation=horizontal&safesearch='true'&page=1&per_page=40`)
+        .then(response => response.json())
+        // .then(res => res.hint)
+}
 
+export default { fetchImages };
 
-
+// Exsample: https://pixabay.com/api/?key=27011698-625c436f56f84acec03c07eda&q=yellow+flowers&image_type=photo
 // ==========================================================================================================
 
 // Список параметров строки запроса которые тебе обязательно необходимо указать:
@@ -22,10 +30,10 @@
 
 // ==========================================================================================================
 
-//      // Optionally the request above could also be done as
-// axios.get('/user', {
+     // Optionally the request above could also be done as
+// axios.get(`${URL}?key=${KEY}&q=${searchName}&image_type=photo&orientation=horizontal&safesearch=true&page=1&per_page=40`, {
 //     params: {
-//       ID: 12345
+//       key: 'KEY'
 //     }
 //   })
 //   .then(function (response) {

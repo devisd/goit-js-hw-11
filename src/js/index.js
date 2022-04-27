@@ -1,14 +1,64 @@
 import '../css/styles.css';
+import API from './fetchPhoto';
+
 // SimpleLightbox
 // import SimpleLightbox from 'simplelightbox';
 // import 'simplelightbox/dist/simple-lightbox.min.css';
-
-// import { Notify } from 'notiflix/build/notiflix-notify-aio';
-
+// Notiflix
+import { Notify } from 'notiflix/build/notiflix-notify-aio';
+// AXIOS
 // import axios from "axios";
 
+const form = document.querySelector('#search-form');
+const galleryList = document.querySelector('.gallery');
+
+form.addEventListener('submit', onInput);
+
+function onInput(e) {
+    e.preventDefault();
+    if (form.elements.searchQuery.value.length === 1 || form.elements.searchQuery.value.length === 2) {
+        return Notify.info("Too many matches found. Please enter a more specific name.");
+    }
+    onSearch(form.elements.searchQuery.value);
+}
 
 
+function onSearch(e) {
+    API.fetchImages(e)
+        .then(e.hits)
+        .then(markupPhotoList)
+        .then(renderGallery)
+        .catch(console.log)
+}
+
+function markupPhotoList(object) {
+    console.log('object ->', object);
+    return object.hits.map(({ previewURL, tags, likes, views, comments, downloads }) =>
+        `<div class="photo-card">
+            <img src="${previewURL}" alt="${tags}" loading="lazy" />
+            <div class="info">
+                <p class="info-item">
+                    <b>Likes</b>${likes}
+                </p>
+                <p class="info-item">
+                    <b>Views</b>${views}
+                </p>
+                <p class="info-item">
+                    <b>Comments</b>${comments}
+                </p>
+                <p class="info-item">
+                    <b>Downloads</b>${downloads}
+                </p>
+            </div>
+        </div>`
+    ).join('');
+}
+
+function renderGallery(markup) {
+    galleryList.innerHTML = markup;
+}
+
+// const lightbox = new SimpleLightbox('.gallery a', { animationSpeed: 250, loop: true, enableKeyboard: true, preloading: true, docClose: true, captionsData: 'alt'});
 // ==========================================================================================================
 
 // В ответе будет массив изображений удовлетворивших критериям параметров запроса. Каждое изображение описывается объектом, из которого тебе интересны только следующие свойства:
