@@ -11,28 +11,35 @@ import { Notify } from 'notiflix/build/notiflix-notify-aio';
 
 const form = document.querySelector('#search-form');
 const galleryList = document.querySelector('.gallery');
+const loadMoreBtn = document.querySelector('.load-more')
 
 form.addEventListener('submit', onInput);
+loadMoreBtn.addEventListener('click', onClick)
 
 function onInput(e) {
     e.preventDefault();
-    if (form.elements.searchQuery.value.length === 1 || form.elements.searchQuery.value.length === 2) {
+    onClick (e)
+    if (form.elements.searchQuery.value.length === 1) {
         return Notify.info("Too many matches found. Please enter a more specific name.");
     }
     onSearch(form.elements.searchQuery.value);
 }
 
+function onClick(url) {
+    url.page += 1;
+}
 
 function onSearch(e) {
     API.fetchImages(e)
-        .then(e.hits)
         .then(markupPhotoList)
         .then(renderGallery)
-        .catch(console.log)
+        .catch(onError)
 }
 
 function markupPhotoList(object) {
-    console.log('object ->', object);
+    if (object.total === 0) {
+        Notify.failure('Sorry, there are no images matching your search query. Please try again.');
+    }
     return object.hits.map(({ previewURL, tags, likes, views, comments, downloads }) =>
         `<div class="photo-card">
             <img src="${previewURL}" alt="${tags}" loading="lazy" />
@@ -58,6 +65,9 @@ function renderGallery(markup) {
     galleryList.innerHTML = markup;
 }
 
+function onError() {
+    Notify.failure('Oops, that went wrong. Please try again later');
+}
 // const lightbox = new SimpleLightbox('.gallery a', { animationSpeed: 250, loop: true, enableKeyboard: true, preloading: true, docClose: true, captionsData: 'alt'});
 // ==========================================================================================================
 

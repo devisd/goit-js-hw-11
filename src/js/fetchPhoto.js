@@ -1,10 +1,11 @@
 const URL = 'https://pixabay.com/api/';
 const KEY = '27011698-625c436f56f84acec03c07eda';
 
+let page = 1;
+
 function fetchImages(searchName) {
-    return fetch(`${URL}?key=${KEY}&q=${searchName}&image_type=photo&orientation=horizontal&safesearch='true'&page=1&per_page=40`)
+    return fetch(`${URL}?key=${KEY}&q=${searchName}&image_type=photo&orientation=horizontal&safesearch='true'&page=${page}&per_page=40`)
         .then(response => response.json())
-        // .then(res => res.hint)
 }
 
 export default { fetchImages };
@@ -31,9 +32,12 @@ export default { fetchImages };
 // ==========================================================================================================
 
      // Optionally the request above could also be done as
-// axios.get(`${URL}?key=${KEY}&q=${searchName}&image_type=photo&orientation=horizontal&safesearch=true&page=1&per_page=40`, {
+// axios.get(`${url}?key=${key}&q=${searchName}&image_type=photo&orientation=horizontal&safesearch=true&page=${page}&per_page=40`, {
 //     params: {
-//       key: 'KEY'
+//         url: 'https://pixabay.com/api/',
+//         key: '27011698-625c436f56f84acec03c07eda',
+//         searchName: 'searchName',
+//         page: '1'
 //     }
 //   })
 //   .then(function (response) {
