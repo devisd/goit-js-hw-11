@@ -39,8 +39,10 @@ function onSearch(e) {
 function markupPhotoList(object) {
     if (object.total === 0) {
         Notify.failure('Sorry, there are no images matching your search query. Please try again.');
+    } else {
+        Notify.success(`Hooray! We found ${object.totalHits} images.`);
     }
-    Notify.success(`Hooray! We found ${object.totalHits} images.`);
+
     return object.hits.map(({ largeImageURL, webformatURL, tags, likes, views, comments, downloads }) =>
         `<a class="gallery__item" href="${largeImageURL}">
             <div class="photo-card">
