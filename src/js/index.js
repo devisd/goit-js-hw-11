@@ -2,8 +2,8 @@ import '../css/styles.css';
 import API from './fetchPhoto';
 
 // SimpleLightbox
-// import SimpleLightbox from 'simplelightbox';
-// import 'simplelightbox/dist/simple-lightbox.min.css';
+import SimpleLightbox from 'simplelightbox';
+import 'simplelightbox/dist/simple-lightbox.min.css';
 // Notiflix
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
 // AXIOS
@@ -40,35 +40,40 @@ function markupPhotoList(object) {
     if (object.total === 0) {
         Notify.failure('Sorry, there are no images matching your search query. Please try again.');
     }
-    return object.hits.map(({ previewURL, tags, likes, views, comments, downloads }) =>
-        `<div class="photo-card">
-            <img src="${previewURL}" alt="${tags}" loading="lazy" />
-            <div class="info">
-                <p class="info-item">
-                    <b>Likes</b>${likes}
-                </p>
-                <p class="info-item">
-                    <b>Views</b>${views}
-                </p>
-                <p class="info-item">
-                    <b>Comments</b>${comments}
-                </p>
-                <p class="info-item">
-                    <b>Downloads</b>${downloads}
-                </p>
+    Notify.success(`Hooray! We found ${object.totalHits} images.`);
+    return object.hits.map(({ largeImageURL, webformatURL, tags, likes, views, comments, downloads }) =>
+        `<a class="gallery__item" href="${largeImageURL}">
+            <div class="photo-card">
+                <img src="${webformatURL}" alt="${tags}" loading="lazy" />
+                <div class="info">
+                    <p class="info-item">
+                        <b>Likes</b>${likes}
+                    </p>
+                    <p class="info-item">
+                        <b>Views</b>${views}
+                    </p>
+                    <p class="info-item">
+                        <b>Comments</b>${comments}
+                    </p>
+                    <p class="info-item">
+                        <b>Downloads</b>${downloads}
+                    </p>
+                </div>
             </div>
-        </div>`
+        </a>`
     ).join('');
 }
 
 function renderGallery(markup) {
     galleryList.innerHTML = markup;
+    new SimpleLightbox('.gallery a', { loop: true, enableKeyboard: true, docClose: true });
 }
 
 function onError() {
     Notify.failure('Oops, that went wrong. Please try again later');
 }
-// const lightbox = new SimpleLightbox('.gallery a', { animationSpeed: 250, loop: true, enableKeyboard: true, preloading: true, docClose: true, captionsData: 'alt'});
+
+
 // ==========================================================================================================
 
 // В ответе будет массив изображений удовлетворивших критериям параметров запроса. Каждое изображение описывается объектом, из которого тебе интересны только следующие свойства:
