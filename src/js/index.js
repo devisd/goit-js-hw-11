@@ -1,39 +1,45 @@
+// import Styles
 import '../css/styles.css';
-import API from './fetchPhoto';
-
 // SimpleLightbox
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 // Notiflix
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
-// AXIOS
-// import axios from "axios";
+// import API
+import FetchImages from './fetchPhoto';
+
 
 const form = document.querySelector('#search-form');
 const galleryList = document.querySelector('.gallery');
 const loadMoreBtn = document.querySelector('.load-more')
 
-form.addEventListener('submit', onInput);
+const fetchPhoto = new FetchImages()
+    
+form.addEventListener('submit', onSearch);
 loadMoreBtn.addEventListener('click', onClick)
 
-function onInput(e) {
-    e.preventDefault();
-    onClick (e)
-    if (form.elements.searchQuery.value.length === 1) {
-        return Notify.info("Too many matches found. Please enter a more specific name.");
-    }
-    onSearch(form.elements.searchQuery.value);
-}
-
-function onClick(url) {
-    url.page += 1;
-}
-
 function onSearch(e) {
-    API.fetchImages(e)
+    e.preventDefault();
+
+    fetchPhoto.query = e.currentTarget.elements.searchQuery.value;
+
+    if (fetchPhoto.query === '') {
+        return Notify.warning('Please enter your request')
+    }
+
+    clearMarkup();
+    fetchPhoto.resetPage();
+
+    fetchPhoto.fetchImages()
         .then(markupPhotoList)
         .then(renderGallery)
         .catch(onError)
+}
+
+function onClick() {
+    fetchPhoto.fetchImages()
+        .then(markupPhotoList)
+        .then(renderGallery)
 }
 
 function markupPhotoList(object) {
@@ -67,8 +73,12 @@ function markupPhotoList(object) {
 }
 
 function renderGallery(markup) {
-    galleryList.innerHTML = markup;
+    galleryList.insertAdjacentHTML("beforeend", markup);
     new SimpleLightbox('.gallery a', { loop: true, enableKeyboard: true, docClose: true });
+}
+
+function clearMarkup() {
+    galleryList.innerHTML = '';
 }
 
 function onError() {
@@ -76,46 +86,11 @@ function onError() {
 }
 
 
-// ==========================================================================================================
-
-// В ответе будет массив изображений удовлетворивших критериям параметров запроса. Каждое изображение описывается объектом, из которого тебе интересны только следующие свойства:
-// webformatURL - ссылка на маленькое изображение для списка карточек.
-// largeImageURL - ссылка на большое изображение.
-// tags - строка с описанием изображения. Подойдет для атрибута alt.
-// likes - количество лайков.
-// views - количество просмотров.
-// comments - количество комментариев.
-// downloads - количество загрузок.
-
-// ==========================================================================================================
-
-// <div class="photo-card">
-//   <img src="" alt="" loading="lazy" />
-//   <div class="info">
-//     <p class="info-item">
-//       <b>Likes</b>
-//     </p>
-//     <p class="info-item">
-//       <b>Views</b>
-//     </p>
-//     <p class="info-item">
-//       <b>Comments</b>
-//     </p>
-//     <p class="info-item">
-//       <b>Downloads</b>
-//     </p>
-//   </div>
-// </div>
-
-// ==========================================================================================================
-
 // После первого запроса при каждом новом поиске выводить уведомление в котором будет написано сколько всего нашли изображений (свойство totalHits).
 // Notify.success(`Hooray! We found ${totalHits} images.`);
 
-
 // Если бэкенд возвращает пустой массив, значит ничего подходящего найдено небыло.
 // Notify.failure('Sorry, there are no images matching your search query. Please try again.');
-
 
 // В ответе бэкенд возвращает свойство totalHits - общее количество изображений которые подошли под критерий поиска (для бесплатного аккаунта). Если пользователь дошел до конца коллекции, пряч кнопку и выводи уведомление
 // Notify.info('We're sorry, but you've reached the end of search results.');

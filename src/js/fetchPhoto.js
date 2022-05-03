@@ -3,63 +3,43 @@ import axios from "axios";
 const URL = 'https://pixabay.com/api/';
 const KEY = '27011698-625c436f56f84acec03c07eda';
 
-let page = 1;
+export default class FetchImages {
+    constructor() {
+        this.searchQuery = '';
+        this.page = 1;
+    }
 
-export function fetchImages(searchName) {
-    return fetch(`${URL}?key=${KEY}&q=${searchName}&image_type=photo&orientation=horizontal&safesearch='true'&page=${page}&per_page=40`)
-        .then(response => response.json())
-    // axios.get(`${URL}?key=${KEY}`, {
-    // params: {
-    //     q: `${searchName}`,
-    //     image_type: 'photo',
-    //     orientation: 'horizontal',
-    //     safesearch: 'true',
-    //     page: `${page}`,
-    //     per_page: '40',
-    //     }
-    // }
-    // ).then(response => {return response.data})
+    fetchImages() {
+        return axios.get(URL, {
+            params: {
+                key: KEY,
+                q: this.searchQuery,
+                image_type: 'photo',
+                orientation: 'horizontal',
+                safesearch: 'true',
+                page: this.page,
+                per_page: '40',
+            }
+        })
+            .then(response => {
+                this.incrementPage()
+                return response.data
+            })
+    }
+   
+    incrementPage() {
+        this.page += 1;
+    }
 
+    resetPage() {
+        this.page = 1;
+    }
+
+    get query() {
+        return this.searchQuery;
+    }
+
+    set query(newQuery) {
+        this.searchQuery = newQuery;
+    }
 }
-
-export default { fetchImages };
-
-// Exsample: https://pixabay.com/api/?key=27011698-625c436f56f84acec03c07eda&q=yellow+flowers&image_type=photo
-// ==========================================================================================================
-
-// Список параметров строки запроса которые тебе обязательно необходимо указать:
-// key - твой уникальный ключ доступа к API.
-// q - термин для поиска. То, что будет вводить пользователь.
-// image_type - тип изображения. Мы хотим только фотографии, поэтому задай значение photo.
-// orientation - ориентация фотографии. Задай значение horizontal.
-// safesearch - фильтр по возрасту. Задай значение true.
-
-// ==========================================================================================================
-
-// Пагинация
-// Pixabay API поддерживает пагинацию и предоставляет параметры page и per_page. Сделай так, чтобы в каждом ответе приходило 40 объектов (по умолчанию 20).
-
-// Изначально значение параметра page должно быть 1.
-// При каждом последующем запросе, его необходимо увеличить на 1.
-// При поиске по новому ключевому слову значение page надо вернуть в исходное, так как будет пагинация по новой коллекции изображений.
-
-// ==========================================================================================================
-
-     // Optionally the request above could also be done as
-// axios.get(`${url}?key=${key}&q=${searchName}&image_type=photo&orientation=horizontal&safesearch=true&page=${page}&per_page=40`, {
-//     params: {
-//         url: 'https://pixabay.com/api/',
-//         key: '27011698-625c436f56f84acec03c07eda',
-//         searchName: 'searchName',
-//         page: '1'
-//     }
-//   })
-//   .then(function (response) {
-//     console.log(response);
-//   })
-//   .catch(function (error) {
-//     console.log(error);
-//   })
-//   .then(function () {
-//     // always executed
-//   });
