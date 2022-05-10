@@ -9,6 +9,8 @@ import { Notify } from 'notiflix/build/notiflix-notify-aio';
 import FetchImages from './fetchPhoto';
 
 
+const gallery = new SimpleLightbox('.gallery a', { loop: true, enableKeyboard: true, docClose: true });
+
 const form = document.querySelector('#search-form');
 const galleryList = document.querySelector('.gallery');
 const loadMoreBtn = document.querySelector('.load-more')
@@ -43,9 +45,10 @@ function onClick() {
 }
 
 function markupPhotoList(object) {
+
     if (object.total === 0) {
         Notify.failure('Sorry, there are no images matching your search query. Please try again.');
-    } else {
+        } else {
         Notify.success(`Hooray! We found ${object.totalHits} images.`);
     }
 
@@ -73,9 +76,10 @@ function markupPhotoList(object) {
 }
 
 function renderGallery(markup) {
+    gallery.refresh()
     galleryList.insertAdjacentHTML("beforeend", markup);
-    new SimpleLightbox('.gallery a', { loop: true, enableKeyboard: true, docClose: true });
 }
+
 
 function clearMarkup() {
     galleryList.innerHTML = '';
