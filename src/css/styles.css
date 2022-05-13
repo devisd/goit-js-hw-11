@@ -23,8 +23,6 @@ button {
     border: none;
     padding: 5px 10px;
     border-radius: 5px;
-    background-color: teal;
-    color: white;
     cursor: pointer;
 }
 
@@ -85,4 +83,13 @@ button {
 .load-more {
     margin: 15px auto 0 auto;
     display: block;
+}
+
+input {
+    border-radius: 5px;
+    border: 1px solid teal;
+}
+
+input:focus {
+    border-radius: 10px;
 }

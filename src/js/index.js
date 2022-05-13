@@ -9,19 +9,25 @@ import { Notify } from 'notiflix/build/notiflix-notify-aio';
 import FetchImages from './fetchPhoto';
 
 
-const gallery = new SimpleLightbox('.gallery a', { loop: true, enableKeyboard: true, docClose: true });
-
 const form = document.querySelector('#search-form');
 const galleryList = document.querySelector('.gallery');
 const loadMoreBtn = document.querySelector('.load-more')
 
 const fetchPhoto = new FetchImages()
     
+loadMoreBtn.setAttribute('disabled', true);
+
 form.addEventListener('submit', onSearch);
 loadMoreBtn.addEventListener('click', onClick)
 
+const gallery = new SimpleLightbox('.gallery a', { loop: true, enableKeyboard: true, docClose: true });
+
+
+
 function onSearch(e) {
     e.preventDefault();
+
+    loadMoreBtn.removeAttribute('disabled');
 
     fetchPhoto.query = e.currentTarget.elements.searchQuery.value;
 
@@ -75,9 +81,10 @@ function markupPhotoList(object) {
     ).join('');
 }
 
+
 function renderGallery(markup) {
-    gallery.refresh()
     galleryList.insertAdjacentHTML("beforeend", markup);
+    gallery.refresh()
 }
 
 
