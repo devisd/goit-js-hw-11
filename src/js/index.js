@@ -1,67 +1,70 @@
 // import Styles
-import '../css/styles.css';
+import "../css/styles.css";
 // SimpleLightbox
-import SimpleLightbox from 'simplelightbox';
-import 'simplelightbox/dist/simple-lightbox.min.css';
+import SimpleLightbox from "simplelightbox";
+import "simplelightbox/dist/simple-lightbox.min.css";
 // Notiflix
-import { Notify } from 'notiflix/build/notiflix-notify-aio';
+import { Notify } from "notiflix/build/notiflix-notify-aio";
 // import API
-import FetchImages from './fetchPhoto';
+import FetchImages from "./fetchPhoto";
 
 const refs = {
-    form: document.querySelector('#search-form'),
-    galleryList: document.querySelector('.gallery'),
-    loadMoreBtn: document.querySelector('.load-more'),
-    fetchPhoto: new FetchImages(),
-    gallery: new SimpleLightbox('.gallery a', { loop: true, enableKeyboard: true, docClose: true }),
-}
-    
-refs.loadMoreBtn.setAttribute('disabled', true);
+  form: document.querySelector("#search-form"),
+  galleryList: document.querySelector(".gallery"),
+  loadMoreBtn: document.querySelector(".load-more"),
+  fetchPhoto: new FetchImages(),
+  gallery: new SimpleLightbox(".gallery a", { loop: true, enableKeyboard: true, docClose: true, }),
+};
 
-refs.form.addEventListener('submit', onSearch);
-refs.loadMoreBtn.addEventListener('click', onClick);
+refs.loadMoreBtn.setAttribute("disabled", true);
+
+refs.form.addEventListener("submit", onSearch);
+refs.loadMoreBtn.addEventListener("click", onClick);
 
 function onSearch(e) {
-    e.preventDefault();
+  e.preventDefault();
 
-    try {
-        refs.loadMoreBtn.removeAttribute('disabled');
-        refs.fetchPhoto.query = e.currentTarget.elements.searchQuery.value;
-
-        if (refs.fetchPhoto.query === '') {
-            refs.loadMoreBtn.setAttribute('disabled', true);
-            return Notify.warning('Please enter your request');
-        }
-
-        clearMarkup();
-        refs.fetchPhoto.resetPage();
-        refs.fetchPhoto.fetchImages()
-            .then(object => {
-                totalHitsCheck(object);
-                return markupPhotoList(object);
-            })
-            .then(renderGallery);
-    } catch {
-        onError();
-    }    
+  refs.loadMoreBtn.removeAttribute("disabled");
+  refs.fetchPhoto.query = e.currentTarget.elements.searchQuery.value;
+  
+  if (refs.fetchPhoto.query === "") {
+      refs.loadMoreBtn.setAttribute("disabled", true);
+      return Notify.warning("Please enter your request");
+    }
+    
+    clearMarkup();
+    refs.fetchPhoto.resetPage();
+    
+  try {
+    refs.fetchPhoto.fetchImages()
+      .then((object) => {
+        totalHitsCheck(object);
+        return markupPhotoList(object);
+      })
+      .then(renderGallery);
+  } catch {
+    onError();
+  }
 }
 
 function onClick() {
-    onFetch();
+  onFetch();
 }
 
 function onFetch() {
-    refs.fetchPhoto.fetchImages()
-        .then(markupPhotoList)
-        .then(renderGallery);
+  refs.fetchPhoto.fetchImages()
+    .then(markupPhotoList)
+    .then(renderGallery);
 }
 
 function totalHitsCheck(object) {
-    return object.total === 0 ? Notify.failure('Sorry, there are no images matching your search query. Please try again.') : Notify.success(`Hooray! We found ${object.totalHits} images.`);
+  return object.total === 0
+    ? Notify.failure("Sorry, there are no images matching your search query. Please try again.")
+    : Notify.success(`Hooray! We found ${object.totalHits} images.`);
 }
 
 function markupPhotoList(object) {
-    return object.hits.map(({ largeImageURL, webformatURL, tags, likes, views, comments, downloads }) =>
+  return object.hits.map(({ largeImageURL, webformatURL, tags, likes, views, comments, downloads, }) =>
         `<a class="gallery__item" href="${largeImageURL}">
             <div class="photo-card">
                 <img src="${webformatURL}" alt="${tags}" loading="lazy" />
@@ -81,20 +84,20 @@ function markupPhotoList(object) {
                 </div>
             </div>
         </a>`
-    ).join('');
+    ).join("");
 }
 
 function renderGallery(markup) {
-    refs.galleryList.insertAdjacentHTML("beforeend", markup);
-    refs.gallery.refresh();
+  refs.galleryList.insertAdjacentHTML("beforeend", markup);
+  refs.gallery.refresh();
 }
 
 function clearMarkup() {
-    refs.galleryList.innerHTML = '';
+  refs.galleryList.innerHTML = "";
 }
 
 function onError() {
-    Notify.failure('Oops, that went wrong. Please try again later');
+  Notify.failure("Oops, that went wrong. Please try again later");
 }
 
 // В ответе бэкенд возвращает свойство totalHits - общее количество изображений которые подошли под критерий поиска (для бесплатного аккаунта). Если пользователь дошел до конца коллекции, пряч кнопку и выводи уведомление
