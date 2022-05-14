@@ -8,56 +8,58 @@ import { Notify } from 'notiflix/build/notiflix-notify-aio';
 // import API
 import FetchImages from './fetchPhoto';
 
-
-const form = document.querySelector('#search-form');
-const galleryList = document.querySelector('.gallery');
-const loadMoreBtn = document.querySelector('.load-more')
-
-const fetchPhoto = new FetchImages()
+const refs = {
+    form: document.querySelector('#search-form'),
+    galleryList: document.querySelector('.gallery'),
+    loadMoreBtn: document.querySelector('.load-more'),
+    fetchPhoto: new FetchImages(),
+    gallery: new SimpleLightbox('.gallery a', { loop: true, enableKeyboard: true, docClose: true }),
+}
     
-loadMoreBtn.setAttribute('disabled', true);
+refs.loadMoreBtn.setAttribute('disabled', true);
 
-form.addEventListener('submit', onSearch);
-loadMoreBtn.addEventListener('click', onClick)
-
-const gallery = new SimpleLightbox('.gallery a', { loop: true, enableKeyboard: true, docClose: true });
-
-
+refs.form.addEventListener('submit', onSearch);
+refs.loadMoreBtn.addEventListener('click', onClick);
 
 function onSearch(e) {
     e.preventDefault();
 
-    loadMoreBtn.removeAttribute('disabled');
+    try {
+        refs.loadMoreBtn.removeAttribute('disabled');
+        refs.fetchPhoto.query = e.currentTarget.elements.searchQuery.value;
 
-    fetchPhoto.query = e.currentTarget.elements.searchQuery.value;
+        if (refs.fetchPhoto.query === '') {
+            return Notify.warning('Please enter your request');
+        }
 
-    if (fetchPhoto.query === '') {
-        return Notify.warning('Please enter your request')
-    }
-
-    clearMarkup();
-    fetchPhoto.resetPage();
-
-    fetchPhoto.fetchImages()
-        .then(markupPhotoList)
-        .then(renderGallery)
-        .catch(onError)
+        clearMarkup();
+        refs.fetchPhoto.resetPage();
+        refs.fetchPhoto.fetchImages()
+            .then(object => {
+                totalHitsCheck(object);
+                return markupPhotoList(object);
+            })
+            .then(renderGallery);
+    } catch {
+        onError();
+    }    
 }
 
 function onClick() {
-    fetchPhoto.fetchImages()
+    onFetch();
+}
+
+function onFetch() {
+    refs.fetchPhoto.fetchImages()
         .then(markupPhotoList)
-        .then(renderGallery)
+        .then(renderGallery);
+}
+
+function totalHitsCheck(object) {
+    return object.total === 0 ? Notify.failure('Sorry, there are no images matching your search query. Please try again.') : Notify.success(`Hooray! We found ${object.totalHits} images.`);
 }
 
 function markupPhotoList(object) {
-
-    if (object.total === 0) {
-        Notify.failure('Sorry, there are no images matching your search query. Please try again.');
-        } else {
-        Notify.success(`Hooray! We found ${object.totalHits} images.`);
-    }
-
     return object.hits.map(({ largeImageURL, webformatURL, tags, likes, views, comments, downloads }) =>
         `<a class="gallery__item" href="${largeImageURL}">
             <div class="photo-card">
@@ -81,27 +83,18 @@ function markupPhotoList(object) {
     ).join('');
 }
 
-
 function renderGallery(markup) {
-    galleryList.insertAdjacentHTML("beforeend", markup);
-    gallery.refresh()
+    refs.galleryList.insertAdjacentHTML("beforeend", markup);
+    refs.gallery.refresh();
 }
 
-
 function clearMarkup() {
-    galleryList.innerHTML = '';
+    refs.galleryList.innerHTML = '';
 }
 
 function onError() {
     Notify.failure('Oops, that went wrong. Please try again later');
 }
-
-
-// После первого запроса при каждом новом поиске выводить уведомление в котором будет написано сколько всего нашли изображений (свойство totalHits).
-// Notify.success(`Hooray! We found ${totalHits} images.`);
-
-// Если бэкенд возвращает пустой массив, значит ничего подходящего найдено небыло.
-// Notify.failure('Sorry, there are no images matching your search query. Please try again.');
 
 // В ответе бэкенд возвращает свойство totalHits - общее количество изображений которые подошли под критерий поиска (для бесплатного аккаунта). Если пользователь дошел до конца коллекции, пряч кнопку и выводи уведомление
 // Notify.info('We're sorry, but you've reached the end of search results.');
