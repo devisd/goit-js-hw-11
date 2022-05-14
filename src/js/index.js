@@ -29,6 +29,7 @@ function onSearch(e) {
         refs.fetchPhoto.query = e.currentTarget.elements.searchQuery.value;
 
         if (refs.fetchPhoto.query === '') {
+            refs.loadMoreBtn.setAttribute('disabled', true);
             return Notify.warning('Please enter your request');
         }
 
