@@ -60,8 +60,8 @@ function onClick() {
 
 function checkEndofSearchResult(object) {
   if (object.hits.length < refs.fetchPhoto.per_page) {
-    Notify.info('We`re sorry, but you`ve reached the end of search results.');
     refs.loadMoreBtn.setAttribute("disabled", true);
+    return Notify.info('We`re sorry, but you`ve reached the end of search results.');
   }
 }
 
@@ -72,6 +72,7 @@ function totalHitsCheck(object) {
   }
   refs.loadMoreBtn.removeAttribute("disabled");
   Notify.success(`Hooray! We found ${object.totalHits} images.`);
+  checkEndofSearchResult(object);
 }
 
 function markupPhotoList(object) {
